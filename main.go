@@ -25,11 +25,12 @@ func main() {
 	}
 
 	// parse incoming data
-	videos, endpoints, parseErr := fileReader.Parse()
+	videos, endpoints, caches, parseErr := fileReader.Parse()
 	if parseErr != nil {
 		log.Fatal("failed to read input data: " + parseErr.Error())
 	}
 
 	fmt.Printf("videos: %+v\n", videos)
 	fmt.Printf("endpoints: %+v\n", endpoints)
+	fmt.Printf("caches: %+v\n", caches)
 }

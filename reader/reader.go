@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/skibish/hashcode-2017-practice-problem/entities/cache"
 	"github.com/skibish/hashcode-2017-practice-problem/entities/endpoint"
 	"github.com/skibish/hashcode-2017-practice-problem/entities/video"
 )
@@ -46,12 +47,15 @@ func New(filePath string) (*Reader, error) {
 }
 
 // Parse parses incoming data.
-func (r *Reader) Parse() (videos []video.Video, endpoints []endpoint.Endpoint, err error) {
+func (r *Reader) Parse() (videos []video.Video, endpoints []endpoint.Endpoint, caches []cache.Cache, err error) {
 	var currentStage int
 
 	var endpointsStage int
 	var endpointsTmpData []int
 	var endpointsLatencyData map[int]int // map[cacheID]latency
+
+	// define cashes
+	var cacheData cache.Cache
 
 	// define counters
 	var countersData counters
@@ -67,6 +71,13 @@ func (r *Reader) Parse() (videos []video.Video, endpoints []endpoint.Endpoint, e
 			}
 
 			currentStage++
+
+			// save cache data
+			cacheData.Capacity = countersData.capacity
+
+			for i := 0; i < countersData.caches; i++ {
+				caches = append(caches, cacheData)
+			}
 
 		case 1:
 			// read
