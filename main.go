@@ -6,6 +6,8 @@ import (
 	"log"
 
 	"github.com/skibish/hashcode-2017-practice-problem/reader"
+	"github.com/skibish/hashcode-2017-practice-problem/entities/video"
+	"github.com/skibish/hashcode-2017-practice-problem/entities/cache"
 )
 
 var (
@@ -33,4 +35,21 @@ func main() {
 	fmt.Printf("videos: %+v\n", videos)
 	fmt.Printf("endpoints: %+v\n", endpoints)
 	fmt.Printf("caches: %+v\n", caches)
+	sortVideos(videos, caches)
 }
+
+
+func sortVideos(videos []video.Video, caches []cache.Cache) {
+	for _, value := range videos {
+		for _, v := range caches {
+			//fmt.Printf("caches: %+v\n", v)
+			if value.Size < v.Capacity {
+				continue
+			}
+
+
+		}
+		fmt.Printf("videos: %+v\n", value)
+	}
+}
+
