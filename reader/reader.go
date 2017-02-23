@@ -139,7 +139,8 @@ func (r *Reader) Parse() (videos []video.Video, endpoints []endpoint.Endpoint, c
 
 					// append endpoint
 					endpoints = append(endpoints, endpoint.Endpoint{
-						CacheLatency: endpointsLatencyData,
+						DatacenterLatency: endpointsTmpData[0],
+						CacheLatency:      endpointsLatencyData,
 					})
 
 				}
