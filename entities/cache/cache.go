@@ -4,5 +4,5 @@ package cache
 type Cache struct {
 	Capacity int // capacity in megabytes
 	//Latency
-	Videos int
+	Videos []int
 }
