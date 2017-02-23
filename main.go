@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 
 	"github.com/skibish/hashcode-2017-practice-problem/reader"
@@ -24,8 +25,11 @@ func main() {
 	}
 
 	// parse incoming data
-	parseErr := fileReader.Parse()
+	videos, endpoints, parseErr := fileReader.Parse()
 	if parseErr != nil {
 		log.Fatal("failed to read input data: " + parseErr.Error())
 	}
+
+	fmt.Printf("videos: %+v\n", videos)
+	fmt.Printf("endpoints: %+v\n", endpoints)
 }

@@ -46,7 +46,7 @@ func New(filePath string) (*Reader, error) {
 }
 
 // Parse parses incoming data.
-func (r *Reader) Parse() (err error) {
+func (r *Reader) Parse() (videos []video.Video, endpoints []endpoint.Endpoint, err error) {
 	var currentStage int
 
 	var endpointsStage int
@@ -55,12 +55,6 @@ func (r *Reader) Parse() (err error) {
 
 	// define counters
 	var countersData counters
-
-	// define videos
-	var videos []video.Video
-
-	// define endpoints
-	var endpoints []endpoint.Endpoint
 
 	// loop through data
 	for _, line := range strings.Split(r.data, "\n") {
@@ -148,10 +142,39 @@ func (r *Reader) Parse() (err error) {
 				return
 			}
 
-		default:
-			printMarshaled("videos", videos)
-			printMarshaled("endpoints", endpoints)
+		case 3:
+			if line == "" {
+				return
+			}
 
+			// read requests data
+			var requestsTmpData []int
+			requestsTmpData, err = stringSliceToInt(strings.Split(line, " "))
+			if err != nil {
+				return
+			}
+
+			if len(requestsTmpData) != 3 {
+				err = errors.New("invalid requests data: " + line)
+				return
+			}
+
+			videoID := requestsTmpData[0]
+			endpointID := requestsTmpData[1]
+			numRequests := requestsTmpData[2]
+
+			// write requests to endpoints
+			if videos[videoID].Requests == nil {
+				videos[videoID].Requests = make(map[int]int)
+			}
+
+			videos[videoID].Requests[endpointID] = numRequests
+
+		default:
+			// printMarshaled("videos", videos)
+			// printMarshaled("endpoints", endpoints)
+
+			err = errors.New("invalid currentStage")
 			return
 
 		}
