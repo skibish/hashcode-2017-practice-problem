@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	inputFile = flag.String("input-file", "file.in", "Input File")
+	inputFile = flag.String("input-file", "_data/me_at_the_zoo.in", "Input File")
 )
 
 var (
@@ -23,4 +23,9 @@ func main() {
 		log.Fatal("failed to read input file: " + fileReaderErr.Error())
 	}
 
+	// parse incoming data
+	parseErr := fileReader.Parse()
+	if parseErr != nil {
+		log.Fatal("failed to read input data: " + parseErr.Error())
+	}
 }
