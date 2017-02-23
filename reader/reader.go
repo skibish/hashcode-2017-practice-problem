@@ -2,11 +2,12 @@ package reader
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"strings"
 
+	"github.com/skibish/hashcode-2017-practice-problem/entities/endpoint"
 	"github.com/skibish/hashcode-2017-practice-problem/entities/video"
 )
 
@@ -46,15 +47,24 @@ func New(filePath string) (*Reader, error) {
 
 // Parse parses incoming data.
 func (r *Reader) Parse() (err error) {
+	var currentStage int
+
+	var endpointsStage int
+	var endpointsTmpData []int
+	var endpointsLatencyData map[int]int // map[cacheID]latency
+
 	// define counters
 	var countersData counters
 
 	// define videos
 	var videos []video.Video
 
+	// define endpoints
+	var endpoints []endpoint.Endpoint
+
 	// loop through data
-	for i, line := range strings.Split(r.data, "\n") {
-		switch i {
+	for _, line := range strings.Split(r.data, "\n") {
+		switch currentStage {
 		case 0:
 			// the first line of the input contains the numbers
 			countersData, err = readCounters(line)
@@ -62,15 +72,91 @@ func (r *Reader) Parse() (err error) {
 				return
 			}
 
+			currentStage++
+
+		case 1:
+			// read
+			for _, videoSize := range strings.Split(line, " ") {
+				// get size
+				var sizeInt int
+				sizeInt, err = strconv.Atoi(videoSize)
+				if err != nil {
+					return
+				}
+
+				videos = append(videos, video.Video{
+					Size: sizeInt,
+				})
+			}
+
+			currentStage++
+
+		case 2:
+			// read endpoint data
+			switch endpointsStage {
+			case 0:
+				// read first line of endpoints data
+				endpointsTmpData, err = stringSliceToInt(strings.Split(line, " "))
+				if err != nil {
+					return
+				}
+
+				if len(endpointsTmpData) != 2 {
+					err = errors.New("invalid endpoints data: " + line)
+					return
+				}
+
+				endpointsLatencyData = make(map[int]int)
+
+				// increase stage
+				endpointsStage++
+
+			case 1:
+				// read endpoint latency data
+				var endpointsLatencyTmpData []int
+				endpointsLatencyTmpData, err = stringSliceToInt(strings.Split(line, " "))
+				if err != nil {
+					return
+				}
+
+				if len(endpointsLatencyTmpData) != 2 {
+					err = errors.New("invalid endpoints latency data")
+					return
+				}
+
+				// fill the map
+				endpointsLatencyData[endpointsLatencyTmpData[0]] = endpointsLatencyTmpData[1]
+
+				endpointsTmpData[1]--
+
+				if endpointsTmpData[1] == 0 {
+					endpointsStage = 0
+
+					// append endpoint
+					endpoints = append(endpoints, endpoint.Endpoint{
+						CacheLatency: endpointsLatencyData,
+					})
+
+				}
+
+				if len(endpoints) == countersData.endpoints {
+					currentStage++
+				}
+
+			default:
+				err = errors.New("invalid endpointsStage")
+				return
+			}
+
 		default:
+			printMarshaled("videos", videos)
+			printMarshaled("endpoints", endpoints)
+
 			return
 
 		}
 
-		fmt.Println(line)
 	}
-
-	fmt.Println(countersData)
 
 	return
 }
